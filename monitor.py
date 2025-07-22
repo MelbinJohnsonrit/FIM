@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from utils.file_utils import get_file_metadata
 from utils.config_loader import load_config
 
@@ -9,6 +10,7 @@ MONITOR_PATH = config["monitor_path"]
 BASELINE_PATH = config["baseline_file"]
 REPORT_PATH = config["report_file"]
 exclude = config["exclude"]
+SCAN_INTERVAL = config.get("scan_interval", 10)
 
 def is_excluded(path):
     return any(excluded in path for excluded in exclude)
@@ -66,20 +68,7 @@ def save_report(modified, deleted, new):
         json.dump(report, f, indent=4)
     print(f"\n📄 Report saved to {REPORT_PATH}")
 
-def main():
-    #target_directory = input("Enter the directory to monitor: ").strip()
-
-    if not os.path.isdir(MONITOR_PATH):
-        print("Invalid directory.")
-        return
-
-    baseline = load_baseline()
-    if baseline is None:
-        return
-
-    current_state = scan_current_state(MONITOR_PATH)
-    modified, deleted, new = compare_states(baseline, current_state)
-
+def print_report(modified, deleted, new):
     print("\n📂 Comparison Report:")
     print("----------------------")
 
@@ -87,7 +76,7 @@ def main():
         print("✅ No changes detected. All files are intact.")
     else:
         if modified:
-            print(f"\n✏️ Modified files ({len(modified)}):")
+            print(f"\n✏ Modified files ({len(modified)}):")
             for f in modified:
                 print(f" - {f}")
 
@@ -101,7 +90,39 @@ def main():
             for f in new:
                 print(f" - {f}")
 
-    save_report(modified, deleted, new)
+def play_beep():
+    """Play a beep sound using aplay if enabled in settings."""
+    if config.get("beep_on_change", False):
+        sound_file = config.get("beep_sound_file", "alert.wav")
+        if os.path.isfile(sound_file):
+            os.system(f"aplay {sound_file} >/dev/null 2>&1")
+        else:
+            print(f" Sound file not found: {sound_file}")
+
+def main():
+    if not os.path.isdir(MONITOR_PATH):
+        print("Invalid directory.")
+        return
+
+    baseline = load_baseline()
+    if baseline is None:
+        return
+
+    print(f" Starting periodic scan every {SCAN_INTERVAL} seconds...\n(Press Ctrl+C to stop)\n")
+    try:
+        while True:
+            current_state = scan_current_state(MONITOR_PATH)
+            modified, deleted, new = compare_states(baseline, current_state)
+            print_report(modified, deleted, new)
+            save_report(modified, deleted, new)
+
+            if modified or deleted or new:
+                play_beep()
+
+            time.sleep(SCAN_INTERVAL)
+
+    except KeyboardInterrupt:
+        print("\nMonitoring stopped by user.")
 
 if __name__ == "__main__":
     main()
