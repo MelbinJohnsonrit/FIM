@@ -3,6 +3,7 @@ import json
 import time
 from utils.file_utils import get_file_metadata
 from utils.config_loader import load_config
+from utils.email_alert import send_email_alert
 
 config = load_config()
 
@@ -108,6 +109,10 @@ def main():
     if baseline is None:
         return
 
+    last_modified = set()
+    last_deleted = set()
+    last_new = set()
+
     print(f" Starting periodic scan every {SCAN_INTERVAL} seconds...\n(Press Ctrl+C to stop)\n")
     try:
         while True:
@@ -115,6 +120,28 @@ def main():
             modified, deleted, new = compare_states(baseline, current_state)
             print_report(modified, deleted, new)
             save_report(modified, deleted, new)
+
+            current_modified = set(modified)
+            current_deleted = set(deleted)
+            current_new = set(new)
+
+            if config.get("email_alert"):
+                if(current_modified != last_modified or
+                   current_deleted != last_deleted or
+                   current_new != last_new):
+                    body=""
+                    if modified:
+                        body += "Modified files:\n"+"\n".join(f" -{f}" for f in modified) + "\n\n"
+                    if deleted:
+                        body += "Deleted files:\n"+"\n".join(f" -{f}" for f in deleted) + "\n\n"
+                    if new:
+                        body += "New files:\n"+"\n".join(f" -{f}" for f in new) + "\n\n" 
+
+                    send_email_alert(body.strip())
+
+                    last_modified = current_modified
+                    last_deleted = current_deleted
+                    last_new = current_new
 
             if modified or deleted or new:
                 play_beep()
