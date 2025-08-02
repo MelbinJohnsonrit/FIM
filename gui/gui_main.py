@@ -1,14 +1,20 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from utils.config_loader import load_config
 import matplotlib.pyplot as plt
 import json
-import os
 import subprocess
 import threading
+from utils.config_loader import load_config, save_config
 
-SCAN_INTERVAL_MS = 10000  # 10 seconds
-REPORT_PATH = "data/report.json"
+config = load_config()
+
+SCAN_INTERVAL_MS = config.get("scan_interval", 10)
+REPORT_PATH = config["report_file"]
 
 
 def read_report():
@@ -71,12 +77,33 @@ def launch_gui():
 
     status_label = tk.Label(startup_frame, text="", font=("Arial", 10))
     status_label.pack()
+
     # Bottom Controls
+
+    audio_alert_enabled = tk.BooleanVar(value=config.get("beep_on_change", False))
+    email_alert_enabled = tk.BooleanVar(value=config.get("email_alert", False))
+
     bottom_frame = tk.Frame(right_frame)
     bottom_frame.pack(side="bottom",fill="x", pady=10)
 
-    tk.Checkbutton(bottom_frame, text="Audio Alert", variable=audio_alert_enabled).pack(side="left", padx=20)
-    tk.Checkbutton(bottom_frame, text="Email Alert", variable=email_alert_enabled).pack(side="left", padx=20)
+    def toggle_audio_alert():
+        config["beep_on_change"] = audio_alert_enabled.get()
+        save_config(config)
+        status = "enabled" if audio_alert_enabled.get() else "disabled"
+        status_label.config(text=f"🔊 Audio alerts {status}", fg="blue")
+
+        # Kill any existing audio processes
+        if not audio_alert_enabled.get():
+            os.system("pkill -f aplay >/dev/null 2>&1")
+
+    def toggle_email_alert():
+        config["email_alert"] = email_alert_enabled.get()
+        save_config(config)
+        status = "enabled" if email_alert_enabled.get() else "disabled"
+        status_label.config(text=f"📧 Email alerts {status}", fg="blue")
+
+    tk.Checkbutton(bottom_frame, text="Audio Alert", variable=audio_alert_enabled, command=toggle_audio_alert).pack(side="left", padx=20)
+    tk.Checkbutton(bottom_frame, text="Email Alert", variable=email_alert_enabled, command=toggle_email_alert).pack(side="left", padx=20)
 
     def run_initialize():
         try:

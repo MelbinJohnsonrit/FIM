@@ -1,17 +1,17 @@
 {
-  "monitor_path": "/ Change this to the directory you want to monitor /",
-  "hash_algorithm": "sha256",
-  "exclude": [
-    ".git",
-    "venv",
-    "__pycache__",
-    "config/",
-    "data/"
-  ],
-  "baseline_file": "data/baseline.json",
-  "report_file": "data/report.json",
-  "scan_interval": 10,
-  "beep_on_change": true,
-  "beep_sound_file": "audio/alert.wav",
-  "email_alert": true
+    "monitor_path": "/home/kali/nsal",
+    "hash_algorithm": "sha256",
+    "exclude": [
+        ".git",
+        "venv",
+        "__pycache__",
+        "config/",
+        "data/"
+    ],
+    "baseline_file": "data/baseline.json",
+    "report_file": "data/report.json",
+    "scan_interval": 10,
+    "beep_on_change": true,
+    "beep_sound_file": "audio/alert.wav",
+    "email_alert": false
 }
