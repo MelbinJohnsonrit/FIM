@@ -2,6 +2,9 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
+from utils.config_loader import load_config
+
+config = load_config()
 
 load_dotenv()
 
@@ -33,3 +36,15 @@ def send_email_alert(message):
         print("📧 Email alert sent!")
     except Exception as e:
         print(f"❌ Failed to send email: {e}")
+
+def play_beep(config=None):
+    """Play a beep sound using aplay if enabled in settings."""
+    if config is None:
+        config = load_config()
+
+    if config.get("beep_on_change", False):
+        sound_file = config.get("beep_sound_file", "alert.wav")
+        if os.path.isfile(sound_file):
+            os.system(f"aplay {sound_file} >/dev/null 2>&1")
+        else:
+            print(f" Sound file not found: {sound_file}")
