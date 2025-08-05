@@ -3,7 +3,7 @@ import json
 import time
 from utils.file_utils import get_file_metadata
 from utils.config_loader import load_config
-from utils.email_alert import send_email_alert
+from utils.email_alert import send_email_alert, play_beep
 
 config = load_config()
 
@@ -91,15 +91,6 @@ def print_report(modified, deleted, new):
             for f in new:
                 print(f" - {f}")
 
-def play_beep():
-    """Play a beep sound using aplay if enabled in settings."""
-    if config.get("beep_on_change", False):
-        sound_file = config.get("beep_sound_file", "alert.wav")
-        if os.path.isfile(sound_file):
-            os.system(f"aplay {sound_file} >/dev/null 2>&1")
-        else:
-            print(f" Sound file not found: {sound_file}")
-
 def main():
     if not os.path.isdir(MONITOR_PATH):
         print("Invalid directory.")
@@ -113,9 +104,16 @@ def main():
     last_deleted = set()
     last_new = set()
 
+    audio_last_modified = set()
+    audio_last_deleted = set()
+    audio_last_new = set()
+
     print(f" Starting periodic scan every {SCAN_INTERVAL} seconds...\n(Press Ctrl+C to stop)\n")
     try:
         while True:
+            # Reload config each iteration to pick up GUI changes
+            current_config = load_config()
+
             current_state = scan_current_state(MONITOR_PATH)
             modified, deleted, new = compare_states(baseline, current_state)
             print_report(modified, deleted, new)
@@ -125,7 +123,7 @@ def main():
             current_deleted = set(deleted)
             current_new = set(new)
 
-            if config.get("email_alert"):
+            if current_config.get("email_alert"):
                 if(current_modified != last_modified or
                    current_deleted != last_deleted or
                    current_new != last_new):
@@ -143,8 +141,15 @@ def main():
                     last_deleted = current_deleted
                     last_new = current_new
 
-            if modified or deleted or new:
-                play_beep()
+            if current_config.get("beep_on_change", False):
+                if(current_modified != audio_last_modified or
+                   current_deleted != audio_last_deleted or
+                   current_new != audio_last_new):
+                    play_beep(current_config)
+
+                    audio_last_modified = current_modified
+                    audio_last_deleted = current_deleted
+                    audio_last_new = current_new
 
             time.sleep(SCAN_INTERVAL)
 
