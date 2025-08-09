@@ -82,9 +82,18 @@ def launch_gui():
 
     audio_alert_enabled = tk.BooleanVar(value=config.get("beep_on_change", False))
     email_alert_enabled = tk.BooleanVar(value=config.get("email_alert", False))
+    critical_only_enabled = tk.BooleanVar(value=config.get("alert_critical_only", False))
 
     bottom_frame = tk.Frame(right_frame)
     bottom_frame.pack(side="bottom",fill="x", pady=10)
+
+    def toggle_critical_only():
+        config["alert_critical_only"] = critical_only_enabled.get()
+        save_config(config)
+        status = "enabled" if critical_only_enabled.get() else "disabled"
+        status_label.config(text=f"🎯 Critical files only {status}", fg="blue")
+
+    tk.Checkbutton(bottom_frame, text="Critical Files Only", variable=critical_only_enabled, command=toggle_critical_only).pack(side="left", padx=20)
 
     def toggle_audio_alert():
         config["beep_on_change"] = audio_alert_enabled.get()
