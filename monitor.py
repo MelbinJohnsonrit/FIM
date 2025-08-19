@@ -10,8 +10,10 @@ config = load_config()
 MONITOR_PATH = config["monitor_path"]
 BASELINE_PATH = config["baseline_file"]
 REPORT_PATH = config["report_file"]
+AI_REPORT_PATH = config.get("ai_report_file", "data/ai_risk_report.json")
 exclude = config["exclude"]
 SCAN_INTERVAL = config.get("scan_interval", 10)
+AI_ENABLED = config.get("ai_risk_scoring", True)
 
 def is_excluded(path):
     return any(excluded in path for excluded in exclude)
