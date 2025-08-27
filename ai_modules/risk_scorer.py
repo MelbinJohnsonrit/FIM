@@ -132,3 +132,111 @@ class AIRiskScorer:
         }
         
         return features
+    def get_file_extension_risk(self, file_path: str) -> float:
+        #\"\"\"Calculate risk based on file extension\"\"\"
+        ext = os.path.splitext(file_path)[1].lower()
+        
+        high_risk_extensions = ['.exe', '.bat', '.sh', '.ps1', '.dll', '.so']
+        medium_risk_extensions = ['.py', '.js', '.php', '.pl', '.rb']
+        config_extensions = ['.conf', '.cfg', '.ini', '.yml', '.yaml', '.json']
+        
+        if ext in high_risk_extensions:
+            return 0.9
+        elif ext in medium_risk_extensions:
+            return 0.7
+        elif ext in config_extensions:
+            return 0.6
+        else:
+            return 0.3
+    
+    def get_location_risk(self, file_path: str) -> float:
+        #\"\"\"Calculate risk based on file location\"\"\"
+        path_lower = file_path.lower()
+        
+        for category, info in self.critical_patterns.items():
+            for pattern in info['patterns']:
+                if pattern in path_lower:
+                    return info['risk_score']
+        
+        return 0.3  # Default low risk
+    
+    def is_system_path(self, file_path: str) -> int:
+        #\"\"\"Check if file is in a system path\"\"\"
+        system_paths = ['/etc/', '/bin/', '/sbin/', '/usr/', '/var/', '/sys/', '/proc/']
+        return 1 if any(path in file_path for path in system_paths) else 0
+    
+    def categorize_file_size(self, size: int) -> int:
+        #\"\"\"Categorize file size for risk assessment\"\"\"
+        if size > 100 * 1024 * 1024:  # > 100MB
+            return 4
+        elif size > 10 * 1024 * 1024:  # > 10MB
+            return 3
+        elif size > 1024 * 1024:  # > 1MB
+            return 2
+        elif size > 1024:  # > 1KB
+            return 1
+        else:
+            return 0
+    
+    def get_change_frequency(self, file_path: str) -> float:
+        #\"\"\"Calculate how frequently this file changes\"\"\"
+        # This would typically query historical data
+        # For now, return a default value
+        return 0.1
+    
+    def get_time_since_last_change(self, file_path: str) -> float:
+        #\"\"\"Calculate time since last change in hours\"\"\"
+        # This would typically query historical data
+        # For now, return a default value
+        return 24.0
+    
+    def get_permission_risk(self, permissions: str) -> float:
+        #\"\"\"Calculate risk based on file permissions\"\"\"
+        if permissions.endswith('777') or permissions.endswith('666'):
+            return 0.9  # World writable is high risk
+        elif permissions.endswith('755') or permissions.endswith('644'):
+            return 0.3  # Standard permissions
+        else:
+            return 0.5  # Medium risk for other permissions
+    
+    def calculate_rule_based_risk(self, features: Dict) -> float:
+        """
+        \"\"\"
+        Calculate risk score using rule-based approach
+        
+        Args:
+            features: Extracted features dictionary
+            
+        Returns:
+            Risk score between 0 and 1
+        \"\"\"
+        """
+        risk_score = 0.0
+        
+        # File type and location risk
+        risk_score += features['file_extension_risk'] * self.risk_weights['file_type_risk']
+        risk_score += features['location_risk'] * self.risk_weights['location_risk']
+        
+        # Time-based risk
+        time_risk = 0.3  # Default
+        if not features['is_business_hours']:
+            time_risk += 0.4
+        if features['is_weekend']:
+            time_risk += 0.3
+        risk_score += min(time_risk, 1.0) * self.risk_weights['time_risk']
+        
+        # Change magnitude risk
+        change_risk = 0.5  # Default
+        if features['change_type_deleted']:
+            change_risk = 0.8
+        elif features['change_type_new'] and features['is_system_path']:
+            change_risk = 0.9
+        risk_score += change_risk * self.risk_weights['change_magnitude']
+        
+        # User behavior risk (simplified)
+        behavior_risk = 0.4
+        if features['change_frequency'] > 0.5:
+            behavior_risk = 0.2  # Frequent changes are less suspicious
+        risk_score += behavior_risk * self.risk_weights['user_behavior']
+        
+        return min(risk_score, 1.0)
