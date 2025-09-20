@@ -192,6 +192,133 @@ def print_report(modified, deleted, new, ai_results=None):
             for rec in ai_results['recommendations'][:3]:  # Show top 3
                 print(f"   {rec}")
 
+def analyze_with_virustotal(modified, new, deleted, current_data):
+    """Analyze files with VirusTotal"""
+    vt_results = {
+        'scanned_files': [],
+        'malicious_files': [],
+        'suspicious_files': [],
+        'clean_files': [],
+        'not_found_files': [],
+        'scan_errors': []
+    }
+    
+    current_config = load_config()
+    if not current_config.get("virustotal_enabled", False):
+        print("🦠 VirusTotal scanning is disabled")
+        return vt_results
+    
+    if not current_config.get("virustotal_api_key"):
+        print("🦠 VirusTotal API key not configured")
+        return vt_results
+    
+    # Initialize VirusTotal if not already done
+    if not vt_integration.vtotal:
+        api_key = current_config.get("virustotal_api_key")
+        if api_key:
+            set_vt_api_key(api_key)
+            print("🦠 VirusTotal API initialized")
+        else:
+            print("🦠 No API key available")
+            return vt_results
+    
+    # Files to scan (only new and modified, not deleted)
+    files_to_scan = []
+    if current_config.get("virustotal_scan_new_files", True):
+        files_to_scan.extend(new)
+    if current_config.get("virustotal_scan_modified_files", True):
+        files_to_scan.extend(modified)
+    
+    if not files_to_scan:
+        return vt_results
+    
+    print(f"🦠 VirusTotal: Scanning {len(files_to_scan)} files...")
+    
+    for file_path in files_to_scan:
+        try:
+            metadata = current_data.get(file_path, {})
+            file_hash = metadata.get('hash')
+            
+            if not file_hash:
+                print(f"🦠 No hash available for {file_path}")
+                continue
+            
+            print(f"🔍 Scanning {file_path} with hash {file_hash[:8]}...")
+            result, message = check_file_hash_vt(file_hash)
+            
+            scan_info = {
+                'file_path': file_path,
+                'file_hash': file_hash,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            if result:
+                scan_info.update(result)
+                vt_results['scanned_files'].append(scan_info)
+                
+                if result.get('status') == 'found':
+                    malicious_count = result.get('malicious', 0)
+                    suspicious_count = result.get('suspicious', 0)
+                    
+                    if malicious_count > 0:
+                        print(f"🚨 MALWARE DETECTED: {file_path} - {malicious_count} engines")
+                        vt_results['malicious_files'].append(scan_info)
+                    elif suspicious_count > 0:
+                        print(f"⚠️  SUSPICIOUS: {file_path} - {suspicious_count} engines")
+                        vt_results['suspicious_files'].append(scan_info)
+                    else:
+                        print(f"✅ Clean: {file_path}")
+                        vt_results['clean_files'].append(scan_info)
+                elif result.get('status') == 'not_found':
+                    print(f"❓ Unknown: {file_path} not in VirusTotal database")
+                    vt_results['not_found_files'].append(scan_info)
+            else:
+                if "404" in message or "not found" in message.lower():
+                    print(f"❓ Unknown: {file_path} not in VirusTotal database")
+                    scan_info['status'] = 'not_found'
+                    vt_results['not_found_files'].append(scan_info)
+                else:
+                    print(f"❌ Error scanning {file_path}: {message}")
+                    scan_info['error'] = message
+                    vt_results['scan_errors'].append(scan_info)
+                    
+        except Exception as e:
+            print(f"❌ Error scanning {file_path} with VirusTotal: {e}")
+            error_info = {
+                'file_path': file_path,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }
+            vt_results['scan_errors'].append(error_info)
+    
+    print(f"🦠 VirusTotal scan complete: {len(vt_results['scanned_files'])} scanned, {len(vt_results['not_found_files'])} unknown")
+    return vt_results
+
+def merge_vt_results(existing_vt_results, new_vt_results):
+    """Merge new VirusTotal results with existing ones"""
+    if not existing_vt_results:
+        return new_vt_results
+    
+    if not new_vt_results:
+        return existing_vt_results
+    
+    merged = existing_vt_results.copy()
+    
+    new_scanned_files = set()
+    for new_file in new_vt_results.get('scanned_files', []):
+        new_scanned_files.add(new_file['file_path'])
+    
+    for category in ['scanned_files', 'malicious_files', 'suspicious_files', 'clean_files', 'not_found_files', 'scan_errors']:
+        merged[category] = [
+            f for f in merged.get(category, [])
+            if f['file_path'] not in new_scanned_files
+        ]
+    
+    for category in ['scanned_files', 'malicious_files', 'suspicious_files', 'clean_files', 'not_found_files', 'scan_errors']:
+        merged.setdefault(category, []).extend(new_vt_results.get(category, []))
+    
+    return merged
+
 def send_ai_enhanced_alert(modified, deleted, new, ai_results, current_config):
     #\"\"\"Send enhanced email alert with AI risk analysis\"\"\"
     if not current_config.get("email_alert"):
