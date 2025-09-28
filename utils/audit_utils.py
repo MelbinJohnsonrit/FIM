@@ -6,6 +6,7 @@ import json
 import time
 import stat
 from datetime import datetime
+import grp
 
 def get_username_from_uid(uid):
     """Convert UID to username"""
@@ -14,153 +15,307 @@ def get_username_from_uid(uid):
     except:
         return f"UID:{uid}"
 
-def get_current_user():
-    """Get current logged in user as fallback"""
+def get_real_user():
+    """Get the real user who is running the session (not effective user)"""
     try:
-        # Method 1: Check who is currently logged in
-        result = subprocess.run(["who"], capture_output=True, text=True, timeout=5)
+        # Method 1: Check SUDO_USER (most reliable when using sudo)
+        sudo_user = os.environ.get('SUDO_USER')
+        if sudo_user and sudo_user != 'root':
+            return sudo_user
+        
+        # Method 2: Check who is actually logged in to the terminal
+        result = subprocess.run(["who", "am", "i"], capture_output=True, text=True, timeout=5)
+        if result.stdout and result.returncode == 0:
+            # Parse "username pts/0 ..."
+            parts = result.stdout.split()
+            if parts:
+                return parts[0]
+        
+        # Method 3: Check the login sessions
+        result = subprocess.run(["w", "-h"], capture_output=True, text=True, timeout=5)
         if result.stdout:
             lines = result.stdout.strip().split('\n')
-            if lines and lines[0]:
-                username = lines[0].split()[0]
-                return username
+            for line in lines:
+                parts = line.split()
+                if len(parts) >= 1:
+                    user = parts[0]
+                    if user != 'root':
+                        return user
         
-        # Method 2: Check environment variables
-        for env_var in ['SUDO_USER', 'USER', 'USERNAME', 'LOGNAME']:
+        # Method 4: Environment variables
+        for env_var in ['USER', 'LOGNAME', 'USERNAME']:
             user = os.environ.get(env_var)
             if user and user != 'root':
                 return user
         
-        # Method 3: Get from process owner
+        # Method 5: Current effective user
         import getpass
         return getpass.getuser()
         
-    except:
-        return "system"
+    except Exception as e:
+        print(f"Error getting real user: {e}")
+        return "unknown"
 
-def get_file_stat_user(file_path):
-    """Get file owner from file system stats"""
+def get_current_user():
+    """Get current logged in user with better detection"""
+    return get_real_user()
+
+def get_file_owner_info(file_path):
+    """Get detailed file ownership information"""
     try:
-        if os.path.exists(file_path):
-            stat_info = os.stat(file_path)
-            return pwd.getpwuid(stat_info.st_uid).pw_name
+        if not os.path.exists(file_path):
+            return None
+        
+        stat_info = os.stat(file_path)
+        owner_uid = stat_info.st_uid
+        owner_gid = stat_info.st_gid
+        
+        try:
+            owner_name = pwd.getpwuid(owner_uid).pw_name
+        except:
+            owner_name = f"UID:{owner_uid}"
+        
+        try:
+            group_name = grp.getgrgid(owner_gid).gr_name
+        except:
+            group_name = f"GID:{owner_gid}"
+        
+        return {
+            'owner': owner_name,
+            'group': group_name,
+            'uid': owner_uid,
+            'gid': owner_gid,
+            'mtime': stat_info.st_mtime
+        }
+    except Exception as e:
+        print(f"Error getting file owner info for {file_path}: {e}")
         return None
-    except:
-        return None
+
+def get_process_creator(file_path):
+    """Try to identify who created/modified a file by checking running processes"""
+    try:
+        # Check if any current process has this file open
+        result = subprocess.run(["lsof", "+c", "15", file_path], 
+                               capture_output=True, text=True, timeout=5)
+        
+        if result.stdout and result.returncode == 0:
+            lines = result.stdout.strip().split('\n')
+            for line in lines[1:]:  # Skip header
+                parts = line.split()
+                if len(parts) >= 3:
+                    command = parts[0]
+                    pid = parts[1]
+                    user = parts[2]
+                    
+                    # Get more details about this process
+                    try:
+                        proc_result = subprocess.run(["ps", "-p", pid, "-o", "user,ruser,comm"], 
+                                                   capture_output=True, text=True, timeout=2)
+                        if proc_result.stdout:
+                            proc_lines = proc_result.stdout.strip().split('\n')
+                            if len(proc_lines) > 1:
+                                proc_parts = proc_lines[1].split()
+                                if len(proc_parts) >= 2:
+                                    real_user = proc_parts[1]  # RUSER (real user)
+                                    if real_user != user and real_user != 'root':
+                                        return real_user
+                                    return user
+                    except:
+                        pass
+                    
+                    return user
+    except Exception:
+        pass
+    
+    return None
+
+def get_recent_user_activity(file_path):
+    """Check recent user activity around the file creation/modification time"""
+    try:
+        if not os.path.exists(file_path):
+            return None
+        
+        file_mtime = os.path.getmtime(file_path)
+        file_time = datetime.fromtimestamp(file_mtime)
+        
+        # Check who was active around that time
+        result = subprocess.run(["last", "-n", "20"], capture_output=True, text=True, timeout=5)
+        if result.stdout:
+            lines = result.stdout.strip().split('\n')
+            for line in lines:
+                # Parse last output: username tty date time - date time
+                parts = line.split()
+                if len(parts) >= 4:
+                    username = parts[0]
+                    if username in ['reboot', 'wtmp']:
+                        continue
+                    
+                    # Try to parse the login time
+                    try:
+                        login_info = ' '.join(parts[3:])
+                        # This is a simplified check - you might want to improve date parsing
+                        if 'still logged in' in login_info or username != 'root':
+                            return username
+                    except:
+                        continue
+    except Exception:
+        pass
+    
+    return None
 
 def get_last_modifier_advanced(file_path):
-    """Advanced method to detect who modified a file"""
-    methods = []
+    """Enhanced method to detect who modified a file with multiple techniques"""
+    detection_methods = []
     
-    # Method 1: Try audit logs with multiple approaches
+    print(f"🔍 Advanced user detection for: {file_path}")
+    
+    # Method 1: Audit logs
     audit_user = get_audit_user(file_path)
+    detection_methods.append(f"audit: {audit_user}")
     if audit_user and audit_user != "Unknown":
+        print(f"  ✅ Audit logs found: {audit_user}")
         return audit_user
-    methods.append(f"audit: {audit_user}")
     
-    # Method 2: Check recent file system events via lsof
-    lsof_user = get_lsof_user(file_path)
-    if lsof_user:
-        return lsof_user
-    methods.append(f"lsof: {lsof_user}")
-    
-    # Method 3: Check process that might have accessed the file
-    process_user = get_process_user(file_path)
+    # Method 2: Process check (who currently has the file open)
+    process_user = get_process_creator(file_path)
+    detection_methods.append(f"process: {process_user}")
     if process_user:
+        print(f"  ✅ Process found: {process_user}")
         return process_user
-    methods.append(f"process: {process_user}")
     
-    # Method 4: Check file owner (last resort)
-    owner_user = get_file_stat_user(file_path)
-    if owner_user:
-        return f"{owner_user}*"  # * indicates it's file owner, not necessarily modifier
-    methods.append(f"owner: {owner_user}")
+    # Method 3: Check recent user activity
+    activity_user = get_recent_user_activity(file_path)
+    detection_methods.append(f"activity: {activity_user}")
+    if activity_user:
+        print(f"  ✅ Recent activity: {activity_user}")
+        return activity_user
     
-    # Method 5: Current user fallback
-    current_user = get_current_user()
-    methods.append(f"current: {current_user}")
+    # Method 4: File owner (but check if it's different from current user)
+    file_info = get_file_owner_info(file_path)
+    if file_info:
+        owner = file_info['owner']
+        current = get_real_user()
+        detection_methods.append(f"owner: {owner}, current: {current}")
+        
+        # If owner is different from current user, it might be the creator
+        if owner != current and owner != 'root':
+            print(f"  ⚠️  File owner differs from current user: {owner}")
+            return f"{owner}*"
     
-    # If all methods fail, return current user with indication
-    return f"{current_user}?"  # ? indicates uncertainty
+    # Method 5: Check environment and session info
+    real_user = get_real_user()
+    detection_methods.append(f"real_user: {real_user}")
+    
+    # Method 6: Check if we're in a su/sudo session
+    try:
+        # Check if we switched users
+        effective_user = pwd.getpwuid(os.geteuid()).pw_name
+        real_uid = os.getuid()
+        real_user_name = pwd.getpwuid(real_uid).pw_name
+        
+        if effective_user != real_user_name:
+            print(f"  ⚠️  User switch detected: {real_user_name} -> {effective_user}")
+            return f"{real_user_name}→{effective_user}"
+        
+    except:
+        pass
+    
+    print(f"  ❓ All methods tried: {', '.join(detection_methods)}")
+    return f"{real_user}?"
 
 def get_audit_user(file_path):
-    """Get user from audit logs"""
+    """Enhanced audit user detection"""
     try:
-        # Multiple audit search methods
-        commands = [
-            ["ausearch", "-f", file_path, "-ts", "today"],
-            ["ausearch", "-k", "track_mods", "-ts", "today"],
-            ["ausearch", "-sc", "write,open,openat", "-f", file_path],
+        file_basename = os.path.basename(file_path)
+        file_dirname = os.path.dirname(file_path)
+        
+        # Multiple audit search strategies
+        search_strategies = [
+            # Strategy 1: Search by full path
+            ["ausearch", "-f", file_path, "-ts", "today", "-i"],
+            # Strategy 2: Search by filename in directory
+            ["ausearch", "-f", file_basename, "-ts", "today", "-i"],
+            # Strategy 3: Search for write operations
+            ["ausearch", "-sc", "openat,write,close", "-f", file_path, "-ts", "today"],
+            # Strategy 4: Search for file creation
+            ["ausearch", "-sc", "creat,open", "-f", file_path, "-ts", "recent"],
         ]
         
-        for cmd in commands:
+        for strategy in search_strategies:
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+                print(f"    Trying audit strategy: {' '.join(strategy[:3])}")
+                result = subprocess.run(strategy, capture_output=True, text=True, timeout=10)
+                
                 if result.stdout and result.returncode == 0:
-                    # Look for the most recent entry
                     lines = result.stdout.strip().split('\n')
+                    
+                    # Look for the most recent entry with user info
                     for line in reversed(lines):
+                        # Look for different user field formats
+                        user_patterns = [
+                            r'auid=(\w+)',  # Audit user ID (name format)
+                            r'uid=(\w+)',   # User ID (name format)
+                            r'auid=(\d+)',  # Audit user ID (numeric)
+                            r'uid=(\d+)',   # User ID (numeric)
+                        ]
+                        
+                        for pattern in user_patterns:
+                            match = re.search(pattern, line)
+                            if match:
+                                user_id = match.group(1)
+                                if user_id.isdigit():
+                                    user_name = get_username_from_uid(user_id)
+                                else:
+                                    user_name = user_id
+                                
+                                if user_name and user_name != 'root':
+                                    print(f"    ✅ Found in audit: {user_name}")
+                                    return user_name
+                        
+                        # Also look for comm= (command) to get context
+                        comm_match = re.search(r'comm="([^"]+)"', line)
+                        if comm_match:
+                            command = comm_match.group(1)
+                            print(f"    📝 Command context: {command}")
+                
+            except subprocess.TimeoutExpired:
+                print(f"    ⏰ Audit search timed out")
+                continue
+            except FileNotFoundError:
+                print(f"    ❌ ausearch not available")
+                break
+            except Exception as e:
+                print(f"    ⚠️  Audit search error: {e}")
+                continue
+        
+        # Fallback: check audit log file directly
+        try:
+            print("    📋 Checking audit log file directly...")
+            with open('/var/log/audit/audit.log', 'r') as f:
+                # Read last 1000 lines
+                lines = f.readlines()[-1000:]
+                
+                for line in reversed(lines):
+                    if file_basename in line or file_path in line:
                         uid_match = re.search(r'uid=(\d+)', line)
                         if uid_match:
-                            return get_username_from_uid(uid_match.group(1))
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                continue
-                
-        # Fallback to grep audit log
-        try:
-            result = subprocess.run(
-                ["grep", os.path.basename(file_path), "/var/log/audit/audit.log"], 
-                capture_output=True, text=True, timeout=10
-            )
-            if result.stdout:
-                lines = result.stdout.strip().split('\n')
-                for line in reversed(lines[-10:]):  # Check last 10 matches
-                    uid_match = re.search(r'uid=(\d+)', line)
-                    if uid_match:
-                        return get_username_from_uid(uid_match.group(1))
-        except:
-            pass
-            
+                            user_name = get_username_from_uid(uid_match.group(1))
+                            if user_name != 'root':
+                                print(f"    ✅ Found in log file: {user_name}")
+                                return user_name
+        except Exception as e:
+            print(f"    ⚠️  Direct log check failed: {e}")
+        
     except Exception as e:
-        pass
+        print(f"    ❌ Audit user detection failed: {e}")
     
     return "Unknown"
 
-def get_lsof_user(file_path):
-    """Get user who has file open via lsof"""
-    try:
-        result = subprocess.run(["lsof", file_path], capture_output=True, text=True, timeout=5)
-        if result.stdout:
-            lines = result.stdout.strip().split('\n')
-            for line in lines[1:]:  # Skip header
-                if line:
-                    parts = line.split()
-                    if len(parts) >= 3:
-                        return parts[2]  # User column
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return None
-
-def get_process_user(file_path):
-    """Get user from processes that might have accessed the file"""
-    try:
-        # Look for recent processes that accessed files in the same directory
-        dir_path = os.path.dirname(file_path)
-        result = subprocess.run(["fuser", "-v", dir_path], capture_output=True, text=True, timeout=5)
-        if result.stderr:  # fuser outputs to stderr
-            lines = result.stderr.strip().split('\n')
-            for line in lines:
-                if 'USER' not in line and line.strip():
-                    parts = line.split()
-                    if len(parts) >= 2:
-                        return parts[1]  # User column
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return None
-
 def get_file_audit_info(file_path, change_type="modified"):
-    """Get comprehensive audit information with multiple fallback methods"""
+    """Get comprehensive audit information with enhanced user detection"""
     try:
+        print(f"🔍 Getting audit info for: {file_path} ({change_type})")
+        
         # Enhanced user detection
         user = get_last_modifier_advanced(file_path)
         
@@ -172,50 +327,33 @@ def get_file_audit_info(file_path, change_type="modified"):
             'command': 'Unknown'
         }
 
-        # Try to get additional context from audit logs
+        # Try to get timestamp from file system if audit fails
         try:
-            result = subprocess.run(
-                ["ausearch", "-f", file_path, "-ts", "today"], 
-                capture_output=True, text=True, timeout=5
-            )
-            if result.stdout:
-                lines = result.stdout.strip().split('\n')
-                for line in reversed(lines):
-                    if 'msg=audit' in line:
-                        # Extract timestamp
-                        time_match = re.search(r'msg=audit\((\d+)\.\d+:', line)
-                        if time_match:
-                            timestamp = int(time_match.group(1))
-                            audit_info['timestamp'] = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-                        
-                        # Extract process info
-                        exe_match = re.search(r'exe="([^"]+)"', line)
-                        if exe_match:
-                            audit_info['process'] = os.path.basename(exe_match.group(1))
-                        
-                        # Extract command
-                        comm_match = re.search(r'comm="([^"]+)"', line)
-                        if comm_match:
-                            audit_info['command'] = comm_match.group(1)
-                        break
-        except:
-            pass
-
-        # If no timestamp from audit, use file modification time
-        if not audit_info['timestamp']:
-            try:
-                if os.path.exists(file_path):
+            if os.path.exists(file_path):
+                if change_type == "new":
+                    # For new files, use creation time (birth time) if available
+                    try:
+                        stat_result = os.stat(file_path)
+                        # On Linux, st_ctime is the last metadata change time
+                        timestamp = stat_result.st_ctime
+                        audit_info['timestamp'] = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+                    except:
+                        mtime = os.path.getmtime(file_path)
+                        audit_info['timestamp'] = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')
+                else:
                     mtime = os.path.getmtime(file_path)
                     audit_info['timestamp'] = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')
-                else:
-                    audit_info['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            except:
+            else:
                 audit_info['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        except:
+            audit_info['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        print(f"✅ Audit info: user={user}, time={audit_info['timestamp']}")
         return audit_info
 
     except Exception as e:
-        current_user = get_current_user()
+        print(f"❌ Audit info failed: {e}")
+        current_user = get_real_user()
         return {
             'user': f"{current_user}?",
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -224,20 +362,26 @@ def get_file_audit_info(file_path, change_type="modified"):
             'command': 'Unknown'
         }
 
+# ... (rest of the functions remain the same: setup_audit_rules, check_audit_system, etc.)
+
 def setup_audit_rules():
     """Setup audit rules for file monitoring"""
     try:
         # Check if running with sudo
         if os.geteuid() != 0:
-            print("⚠️  Audit setup requires root privileges. Run with sudo.")
+            print("⚠️  Audit setup requires root privileges. Run with sudo for best results.")
             return False
 
         # Check if auditd is installed
         result = subprocess.run(["which", "auditd"], capture_output=True, text=True)
         if result.returncode != 0:
             print("📦 Installing auditd...")
-            subprocess.run(["apt-get", "update"], check=True)
-            subprocess.run(["apt-get", "install", "-y", "auditd", "audispd-plugins"], check=True)
+            try:
+                subprocess.run(["apt-get", "update"], check=True)
+                subprocess.run(["apt-get", "install", "-y", "auditd", "audispd-plugins"], check=True)
+            except subprocess.CalledProcessError:
+                print("❌ Failed to install auditd. Manual installation may be required.")
+                return False
 
         # Start auditd service
         subprocess.run(["systemctl", "start", "auditd"], check=False)
@@ -289,8 +433,8 @@ def check_audit_system():
         detection_methods = {
             'audit_logs': False,
             'lsof': False,
-            'fuser': False,
-            'who': False
+            'user_session': False,
+            'who_command': False
         }
         
         # Check auditd
@@ -310,11 +454,11 @@ def check_audit_system():
         except:
             pass
             
-        # Check fuser
+        # Check user session detection
         try:
-            result = subprocess.run(["which", "fuser"], capture_output=True, text=True, timeout=5)
-            if result.returncode == 0:
-                detection_methods['fuser'] = True
+            real_user = get_real_user()
+            if real_user and real_user != 'unknown':
+                detection_methods['user_session'] = True
         except:
             pass
             
@@ -322,13 +466,15 @@ def check_audit_system():
         try:
             result = subprocess.run(["who"], capture_output=True, text=True, timeout=5)
             if result.returncode == 0:
-                detection_methods['who'] = True
+                detection_methods['who_command'] = True
         except:
             pass
 
         active_methods = sum(detection_methods.values())
         
-        if active_methods >= 2:
+        if active_methods >= 3:
+            return {"status": "excellent", "message": f"{active_methods}/4 detection methods available"}
+        elif active_methods >= 2:
             return {"status": "good", "message": f"{active_methods}/4 detection methods available"}
         elif active_methods >= 1:
             return {"status": "limited", "message": f"{active_methods}/4 detection methods available"}

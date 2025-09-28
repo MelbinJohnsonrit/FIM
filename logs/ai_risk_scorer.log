@@ -1,0 +1,138 @@
+2025-10-02 11:05:53,373 - AIRiskScorer - INFO - AI model loaded successfully
+2025-10-02 11:06:26,516 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:06:41,566 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:06:56,731 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:12,603 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:12,966 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:29,084 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:29,442 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:45,682 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:07:46,051 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:01,944 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:02,322 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:18,751 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:19,126 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:36,046 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:36,382 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:52,950 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:08:53,312 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:09,331 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:09,681 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:26,538 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:26,889 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:42,834 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:43,192 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:59,198 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:09:59,560 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:15,686 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:16,065 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:31,953 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:32,329 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:48,646 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:10:49,011 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:11:04,902 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:11:05,297 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:23:03,597 - AIRiskScorer - INFO - AI model loaded successfully
+2025-10-02 11:23:09,138 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:23:24,895 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:23:40,479 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:23:55,913 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:24:11,296 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:24:27,256 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:24:42,611 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:24:58,112 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:25:13,649 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:25:29,005 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:25:44,344 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:00,345 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:00,704 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:16,523 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:16,903 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:32,812 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:33,215 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:49,239 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:26:49,647 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:27:05,450 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:27:05,825 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:27:21,846 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:27:22,213 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:36:20,984 - AIRiskScorer - INFO - AI model loaded successfully
+2025-10-02 11:37:13,966 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:37:29,838 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:37:45,783 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:38:01,766 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:38:17,738 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:38:34,242 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:38:50,098 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:06,073 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:22,042 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:39,858 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:40,227 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:57,071 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:39:57,446 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:14,074 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:14,462 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:40:14,462 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:40:14,462 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:14,861 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:31,486 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:31,851 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:40:31,851 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:40:31,851 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:32,238 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:49,072 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:49,461 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:40:49,461 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:40:49,461 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:40:49,867 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:06,493 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:06,572 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:06,962 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:41:06,962 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:41:06,962 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:07,367 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:23,797 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:23,876 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:24,250 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:41:24,250 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:41:24,250 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:24,625 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:41,536 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:41,617 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:42,005 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:41:42,005 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:41:42,005 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:42,392 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:42,757 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:59,636 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:41:59,715 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:00,098 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:42:00,098 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:42:00,098 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:00,485 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:00,875 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:17,620 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:17,698 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:18,073 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:42:18,073 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:42:18,073 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:18,466 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:18,841 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:35,389 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:35,780 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:42:35,780 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:42:35,780 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:36,161 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:52,487 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:52,872 - AIRiskScorer - WARNING - MALWARE DETECTED: Boosting risk score to 0.900
+2025-10-02 11:42:52,872 - AIRiskScorer - CRITICAL - NEW MALWARE FILE DETECTED: Maximum risk applied
+2025-10-02 11:42:52,872 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:42:53,270 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:43:38,625 - AIRiskScorer - INFO - AI model loaded successfully
+2025-10-02 11:44:31,909 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:44:48,407 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:45:04,894 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:45:21,397 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:45:37,962 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:45:55,276 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
+2025-10-02 11:46:12,073 - AIRiskScorer - ERROR - ML prediction failed: X has 20 features, but StandardScaler is expecting 16 features as input.
